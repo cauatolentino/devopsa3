@@ -6,7 +6,8 @@ public class Juiz {
 	
 	private double maisPontos = Double.NEGATIVE_INFINITY;
 	private double menosPontos = Double.POSITIVE_INFINITY;
-	
+	private Participante vencedor;
+
 	
 
 	public void julga(Jogo jogo){
@@ -14,7 +15,10 @@ public class Juiz {
 			throw new RuntimeException("Sem resultados n�o h� julgamento!");
 			}
 		for(Resultado resultado : jogo.getResultados()){
-			if(resultado.getMetrica() > maisPontos) maisPontos = resultado.getMetrica();
+			if(resultado.getMetrica() > maisPontos) {
+				maisPontos = resultado.getMetrica();
+				vencedor = resultado.getParticipante();
+			}
 			if(resultado.getMetrica() < menosPontos) menosPontos = resultado.getMetrica();
 
 	     }
@@ -28,6 +32,11 @@ public class Juiz {
    public double getUltimoColocado(){
 			
 			return menosPontos;
+		}
+
+   public Participante getVencedor(){
+
+			return vencedor;
 		}
 
 }

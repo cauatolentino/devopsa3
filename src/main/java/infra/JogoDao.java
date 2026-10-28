@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -19,11 +20,20 @@ import br.com.valueprojects.mock_spring.model.Resultado;
 
 public class JogoDao {
 
-	private Connection conexao;
+	private final Connection conexao;
 
 	public JogoDao() {
+		this(conecta());
+	}
+
+	// a conexao e injetada pelo construtor, assim os testes podem usar um mock do JDBC
+	public JogoDao(Connection conexao) {
+		this.conexao = conexao;
+	}
+
+	private static Connection conecta() {
 		try {
-			this.conexao = DriverManager.getConnection(
+			return DriverManager.getConnection(
 					"jdbc:mysql://localhost/mocks", "root", "");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -97,8 +107,8 @@ public class JogoDao {
 				ResultSet rs2 = ps2.executeQuery();
 				
 				while(rs2.next()) {
-					Participante participante = new Participante(rs2.getInt("id"), rs2.getString("nome"));
-					Resultado resultado = new Resultado(participante, rs2.getDouble("metrica"));
+					Participante participante = new Participante(rs2.getInt("participante_id"), rs2.getString("nome"));
+					Resultado resultado = new Resultado(participante, rs2.getDouble("valor"));
 					
 					jogo.anota(resultado);
 				}
@@ -120,14 +130,20 @@ public class JogoDao {
 	public void atualiza(Jogo jogo) {
 		
 		try {
-			String sql = "UPDATE JOGO SET DESCRICAO=?, DATA=?, FINALIZADO=? WHERE ID = ?;";
+			String sql = "UPDATE JOGO SET DESCRICAO=?, DATA=?, FINALIZADO=?, VENCEDOR_ID=? WHERE ID = ?;";
 			PreparedStatement ps = conexao.prepareStatement(sql);
 			ps.setString(1, jogo.getDescricao());
 			ps.setDate(2, new java.sql.Date(jogo.getData().getTimeInMillis()));
 			ps.setBoolean(3, jogo.isFinalizado());
-			ps.setInt(4, jogo.getId());
+			if (jogo.getVencedor() != null) {
+				ps.setInt(4, jogo.getVencedor().getId());
+			} else {
+				ps.setNull(4, Types.INTEGER);
+			}
+			ps.setInt(5, jogo.getId());
 
 			ps.execute();
+			ps.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

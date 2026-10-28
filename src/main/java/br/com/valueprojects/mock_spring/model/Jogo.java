@@ -13,7 +13,8 @@ public class Jogo {
 	private List<Resultado> resultados;
 	private boolean finaliza;
 	private int id;
-	
+	private Participante vencedor;
+
 	public Jogo(String descricao) {
 		this(descricao, Calendar.getInstance());
 	}
@@ -77,4 +78,12 @@ public class Jogo {
 	 public void setData(Calendar data) {
 	        this.data = data;
 	    }
+
+	public Participante getVencedor() {
+		return vencedor;
+	}
+
+	public void setVencedor(Participante vencedor) {
+		this.vencedor = vencedor;
+	}
 }
